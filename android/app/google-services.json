@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "302152432080",
+    "project_id": "ecclesia-app",
+    "storage_bucket": "ecclesia-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:302152432080:android:144efbc7489e52c53021d5",
+        "android_client_info": {
+          "package_name": "com.ecclesia.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "302152432080-bp8prs3qat07jig6o388g2lifqrl2epc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ecclesia.app",
+            "certificate_hash": "67bc108763a7dc3e3aa71f6b2716eb3435465edd"
+          }
+        },
+        {
+          "client_id": "302152432080-fequqb9aoo65e3obtcb4pe8ioifedm9k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ecclesia.app",
+            "certificate_hash": "8545edd1f74aebac9f51c24ff268b470c7ee9598"
+          }
+        },
+        {
+          "client_id": "302152432080-03r6rsv10bcavh3f6op58pmcmps578v2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCld_lobUNRGcyowLzOXS4PuyDu7QRdNSo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "302152432080-03r6rsv10bcavh3f6op58pmcmps578v2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "302152432080-8us4j9kipj075hqi8lsq2jmf695917ld.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ecclesia.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
