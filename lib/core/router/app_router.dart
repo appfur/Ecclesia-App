@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myapp/core/maps/global.dart';
 import 'package:myapp/screens/Book_Detail_Now/view2.dart';
+import 'package:myapp/screens/account/change_username.dart';
+import 'package:myapp/screens/account/forgot_password.dart';
+import 'package:myapp/screens/account/report.dart';
 import 'package:myapp/screens/home/view.dart';
 import 'package:myapp/screens/payment/payment.dart';
 import 'package:myapp/screens/payment/success.dart';
@@ -11,6 +14,8 @@ import 'package:provider/provider.dart';
 import '../../models/book_model.dart';
 //import '../../screens/Book_Detail/view.dart';
 import '../../screens/Book_Detail_Now/viewmodel.dart';
+import '../../screens/account/change_email.dart';
+import '../../screens/account/change_password.dart';
 import '../../screens/account/view.dart';
 import '../../screens/auth_success/view.dart';
 import '../../screens/category_detail/view.dart';
@@ -18,7 +23,9 @@ import '../../screens/login/view.dart';
 import '../../screens/notification/view.dart';
 import '../../screens/onboarding-auth/view.dart';
 import '../../screens/search/view.dart';
+import '../../screens/shelf/view.dart';
 import '../../screens/signup/view.dart';
+import '../../screens/verify_mail/view.dart';
 import '../../widgets/custom_nav_bar/view.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -191,11 +198,34 @@ class AppRouter {
     routes: [
       // ✅ Standalone routes first
       GoRoute(path: '/', builder: (context, state) => const OnboardingView()),
+     GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingView()),
+
       GoRoute(path: '/login', builder: (context, state) => const LoginView()),
       GoRoute(path: '/signup', builder: (context, state) => const SignupView()),
       GoRoute(
         path: '/acc-success',
         builder: (context, state) => const SuccessScreen(),
+      ),
+GoRoute(
+        path: '/change-username',
+        builder: (context, state) => const ChangeUsernameScreen(),
+      ),
+GoRoute(
+        path: '/change-email',
+        builder: (context, state) => const ChangeEmailScreen(),
+      ),
+GoRoute(
+        path: '/change-password',
+        builder: (context, state) => const ChangePasswordScreen(),
+      ),
+
+GoRoute(
+        path: '/report-issue',
+        builder: (context, state) => const ReportIssueScreen(),
+      ),
+GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
 
       GoRoute(
@@ -206,7 +236,11 @@ class AppRouter {
           return CategoryDetailScreen(categoryId: categoryId, title: title);
         },
       ),
-      /*  GoRoute(
+      /*  GoRoute(oRoute(
+        path: '/change-password',
+        builder: (context, state) => const ChangePasswordScreen(),
+      ),
+
         path: '/book/:i',
         name: 'book_deta',
         builder: (context, state) {
@@ -250,6 +284,10 @@ class AppRouter {
           return Payment(book: book);
         },
       ),
+GoRoute(
+  path: '/verify-email',
+  builder: (context, state) => const VerifyEmailScreen(),
+),
 
       GoRoute(
         path: '/book/:id',
@@ -353,7 +391,7 @@ GoRoute(
         routes: [
           GoRoute(
             path: '/home',
-            builder: (context, state) => const LibraryScreen(),
+            builder: (context, state) => const HomeScreen(),
           ),
           GoRoute(path: '/search', builder: (context, state) => SearchScreen()),
           GoRoute(

@@ -11,16 +11,19 @@ class BookDetailViewModel extends ChangeNotifier {
   AuthorModel? author;
   List<BookModel> similarBooks = [];
   bool isLoading = true;
+bool isInLibrary = false;
 
   bool _disposed = false;
-
-  BookDetailViewModel({required this.book}) {
+final String userId;
+  BookDetailViewModel({ required this.userId,required this.book}) {
     _init();
   }
 
   Future<void> _init() async {
     try {
-      await Future.wait([fetchAuthor(), fetchSimilarBooks()]);
+      await Future.wait([fetchAuthor(),
+       checkIfInLibrary(), 
+       fetchSimilarBooks()]);
     } catch (e) {
       debugPrint("⚠️ Error loading book detail: $e");
     } finally {
@@ -38,6 +41,72 @@ class BookDetailViewModel extends ChangeNotifier {
       }
     }
   }
+Future<void> checkIfInLibrary() async {
+  final doc = await _firestore
+      .collection('users')
+      .doc(userId)
+      .collection('library')
+      .doc(book.id)
+      .get();
+
+  isInLibrary = doc.exists;
+  notifyListeners();
+}
+
+  Future<void> addToLibrary() async {
+  final userLibRef = _firestore.collection('users').doc(userId).collection('library').doc(book.id);
+
+  await userLibRef.set({
+    ...book.toMap(),
+    'added_at': FieldValue.serverTimestamp(),
+  });
+
+  debugPrint("✅ Book added to library!");
+}
+Future<void> toggleLibraryStatus() async {
+  final ref = _firestore
+      .collection('users')
+      .doc(userId)
+      .collection('library')
+      .doc(book.id);
+
+  if (isInLibrary) {
+    await ref.delete();
+  } else {
+    await ref.set({
+      ...book.toMap(),
+      'added_at': FieldValue.serverTimestamp(),
+    });
+  }
+
+  isInLibrary = !isInLibrary;
+  notifyListeners();
+}
+
+
+
+Future<bool> canAccessBook(BookModel book) async {
+  final uid = userId;
+
+  if (book.price == 0) {
+    await _firestore.collection('users').doc(uid).collection('library').doc(book.id).set({
+      ...book.toMap(),
+      'added_at': FieldValue.serverTimestamp(),
+    });
+    return true;
+  }
+
+  final purchasedDoc = await _firestore
+      .collection('users')
+      .doc(uid)
+      .collection('purchases')
+      .doc(book.id)
+      .get();
+
+  return purchasedDoc.exists;
+}
+
+
 
   Future<void> fetchSimilarBooks() async {
     if (book.category.isEmpty) {

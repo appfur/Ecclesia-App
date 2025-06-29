@@ -5,7 +5,7 @@ import 'package:myapp/widgets/error-snackbar.dart';
 import '../../models/book_model.dart';
 import '../../models/category_model.dart';
 
-class LibraryViewModel with ChangeNotifier {
+class   HomeViewModel with ChangeNotifier {
   final _firestore = FirebaseFirestore.instance;
   List<CategoryModel> _categories = [];
   bool _isLoading = true;

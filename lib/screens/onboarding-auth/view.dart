@@ -25,9 +25,8 @@ class OnboardingView extends StatelessWidget {
               children: [
                 Image.asset('assets/icons/logo.jpg', height: 120),
                 const SizedBox(height: 32),
-                //TODO:UPDATE TO STORIES
                 const Text(
-                  'Welcome to the rhythm\nof Learning', //stories',
+                  'Welcome to the rhythm\nof stories',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 22,

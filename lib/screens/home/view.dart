@@ -6,20 +6,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../widgets/category_section.dart';
 import 'viewmodel.dart';
 
-class LibraryScreen extends StatelessWidget {
-  const LibraryScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<LibraryViewModel>(context);
+    final viewModel = Provider.of<HomeViewModel>(context);
     final user = FirebaseAuth.instance.currentUser;
     final photoUrl = user?.photoURL;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Mayorkay Edu',
-          //TODO:UPDATE NAME
+          'Ecclesia Library',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [

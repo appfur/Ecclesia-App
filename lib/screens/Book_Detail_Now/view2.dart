@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +18,7 @@ class BookDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => BookDetailViewModel(book: book),
+      create: (_) => BookDetailViewModel(book: book ,userId: FirebaseAuth.instance.currentUser!.uid,),
       child: Consumer<BookDetailViewModel>(
         builder: (context, vm, _) {
           try {
@@ -117,11 +118,18 @@ class BookDetailScreen extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                onPressed: () {
-                                  showProductDetailsBottomSheet(
+                                onPressed: () async {
+                                 
+                              final canAccess = await vm.canAccessBook(book);
+  if (canAccess) {
+   // context.push('/reader/${book.id}', extra: book); // Open book
+  } else {
+ showProductDetailsBottomSheet(
                                     context,
                                     book,
-                                  ); // pass the BookModel here
+                                  );
+   // context.push('/payment', extra: book); // Go to payment
+  }      // pass the BookModel here
                                 },
 
                                 label: Text(
@@ -135,14 +143,32 @@ class BookDetailScreen extends StatelessWidget {
                             const SizedBox(width: 16),
                             Expanded(
                               child: OutlinedButton(
-                                onPressed: () {},
+                             //   onPressed: () {},
+                               onPressed: () async {
+  //await vm.addToLibrary();
+
+ // ScaffoldMessenger.of(context).showSnackBar(
+  //  const SnackBar(content: Text("📚 Book added to your library")),
+  //);
+   await vm.toggleLibraryStatus();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(vm.isInLibrary
+            ? "📚 Book added to your library"
+            : "❌ Book removed from your library"),
+      ),
+    );
+},
+
                                 style: OutlinedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
                                 child: Text(
-                                  'Add to library',
+                                    vm.isInLibrary ? 'Remove from Library' : 'Add to Library',
+                                 // 'Add to library',
                                   style: GoogleFonts.poppins(),
                                 ),
                               ),
@@ -151,7 +177,7 @@ class BookDetailScreen extends StatelessWidget {
                               icon: const Icon(Icons.share),
                               onPressed: () {
                                 final shareLink =
-                                    'https://mayorkayedu.com/book/${book.id}';
+                                    'https://ecclesia.com/book/${book.id}';
                                 Share.share(
                                   '📖 Check out this book: $shareLink',
                                 );

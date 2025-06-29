@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,7 +17,11 @@ class BookDetailScree extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => BookDetailViewModel(book: book),
+      create:
+          (_) => BookDetailViewModel(
+            book: book,
+            userId: FirebaseAuth.instance.currentUser!.uid,
+          ),
       child: Consumer<BookDetailViewModel>(
         //  print("📚 similarBooks count: ${vm.similarBooks.length}");
         builder: (context, vm, _) {
@@ -113,7 +118,17 @@ class BookDetailScree extends StatelessWidget {
                                         color: Colors.white,
                                         //  width: 32,
                                       ),
-                                      onPressed: () {},
+                                     // onPressed: () {
+                                        onPressed: () async {
+  final canAccess = await vm.canAccessBook(book);
+  if (canAccess) {
+   // context.push('/reader/${book.id}', extra: book); // Open book
+  } else {
+    context.push('/payment', extra: book); // Go to payment
+  }
+},
+//
+         //                             },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.black,
                                         shape: RoundedRectangleBorder(

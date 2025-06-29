@@ -20,9 +20,13 @@ class LoginViewModel extends ChangeNotifier {
     navigatorKey.currentContext?.push('/signup');
   }
 
-  void onForgotPassword() {
+  Future<void> onForgotPassword() async {
     // Optional: Navigate to forgot password page
-    debugPrint('Forgot password tapped');
+    // debugPrint('Forgot password tapped');
+   // context.push('/forgot-password');
+   await FirebaseAuth.instance.signOut();
+       navigatorKey.currentContext?.go('/forgot-password');
+
   }
 
   Future<void> login() async {
@@ -42,7 +46,17 @@ class LoginViewModel extends ChangeNotifier {
         password: password,
       );
 
-      navigatorKey.currentContext?.go('/home');
+      //navigatorKey.currentContext?.go('/home');
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null && user.emailVerified) {
+        navigatorKey.currentContext?.go('/home');
+      } else {
+        // Optionally send email again
+        // await user?.sendEmailVerification();
+
+        navigatorKey.currentContext?.go('/verify-email');
+      }
     } on FirebaseAuthException catch (e) {
       final msg = getErrorMessage(e);
       showError(msg);

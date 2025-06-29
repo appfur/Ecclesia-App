@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -5,6 +6,7 @@ import 'package:myapp/screens/login/view.dart';
 import 'package:myapp/screens/onboarding-auth/view.dart';
 import 'package:myapp/seeds/book_prices.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/maps/global.dart';
 import 'core/router/app_router.dart';
@@ -17,6 +19,8 @@ import 'screens/login/viewmodel.dart';
 import 'screens/notification/viewmodel.dart';
 import 'screens/onboarding-auth/viewmodel.dart';
 import 'screens/search/viewmodel.dart';
+import 'screens/shelf/view.dart';
+import 'screens/shelf/viewmodel.dart';
 import 'screens/signup/viewmodel.dart';
 import 'seeds/author_seed.dart';
 import 'seeds/book_content_seed.dart';
@@ -53,13 +57,17 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
         ChangeNotifierProvider(
-          create: (_) => LibraryViewModel()..fetchCategories(),
+          create: (_) => HomeViewModel()..fetchCategories(),
         ),
         ChangeNotifierProvider(create: (_) => SignupViewModel()),
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => NavViewModel()),
         ChangeNotifierProvider(create: (_) => CountdownViewModel()),
         ChangeNotifierProvider(create: (_) => SearchViewModel()),
+   //  ChangeNotifierProvider(create: (_) => AccountViewModel()),
+
+    // ChangeNotifierProvider(create: (_) => LibraryViewModel()),
+
         ChangeNotifierProvider.value(value: authNotifier),
       ],
       child: StreamBuilder<User?>(
@@ -91,6 +99,15 @@ class MyApp extends StatelessWidget {
                 ChangeNotifierProvider(
                   create: (_) => NotificationsViewModel(uid: user.uid),
                 ),
+                ChangeNotifierProvider(
+  create: (_) => LibraryViewModel(
+    firestore: FirebaseFirestore.instance,
+    //prefs: await SharedPreferences.getInstance(), // if async, use FutureProvider
+    userId: FirebaseAuth.instance.currentUser!.uid,
+  )..loadLibrary(), // optionally call method on init
+  child: LibraryScreen(),
+              )
+              
               ],
               child: app,
             );
