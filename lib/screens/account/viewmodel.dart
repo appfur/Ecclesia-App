@@ -13,8 +13,8 @@ class AccountViewModel extends ChangeNotifier {
   User? get user => _auth.currentUser;
 
   bool get isLoggedIn => user != null;
-bool get isGoogleUser =>
-    user?.providerData.any((p) => p.providerId == 'google.com') ?? false;
+  bool get isGoogleUser =>
+      user?.providerData.any((p) => p.providerId == 'google.com') ?? false;
 
   Future<void> updateProfilePicture(Uint8List imageBytes) async {
     final uid = user!.uid;

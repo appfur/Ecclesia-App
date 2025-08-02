@@ -4,11 +4,7 @@ class FullScreenImageViewer extends StatelessWidget {
   final String imageUrl;
   final String? tag; // optional for Hero animation
 
-  const FullScreenImageViewer({
-    super.key,
-    required this.imageUrl,
-    this.tag,
-  });
+  const FullScreenImageViewer({super.key, required this.imageUrl, this.tag});
 
   @override
   Widget build(BuildContext context) {
@@ -20,16 +16,17 @@ class FullScreenImageViewer extends StatelessWidget {
         elevation: 0,
       ),
       body: Center(
-        child: tag != null
-            ? Hero(
-                tag: tag!,
-                child: InteractiveViewer(
+        child:
+            tag != null
+                ? Hero(
+                  tag: tag!,
+                  child: InteractiveViewer(
+                    child: Image.network(imageUrl, fit: BoxFit.contain),
+                  ),
+                )
+                : InteractiveViewer(
                   child: Image.network(imageUrl, fit: BoxFit.contain),
                 ),
-              )
-            : InteractiveViewer(
-                child: Image.network(imageUrl, fit: BoxFit.contain),
-              ),
       ),
     );
   }

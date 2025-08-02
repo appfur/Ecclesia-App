@@ -118,17 +118,27 @@ class BookDetailScree extends StatelessWidget {
                                         color: Colors.white,
                                         //  width: 32,
                                       ),
-                                     // onPressed: () {
-                                        onPressed: () async {
-  final canAccess = await vm.canAccessBook(book);
-  if (canAccess) {
-   // context.push('/reader/${book.id}', extra: book); // Open book
-  } else {
-    context.push('/payment', extra: book); // Go to payment
-  }
-},
-//
-         //                             },
+                                      // onPressed: () {
+                                      onPressed: () async {
+                                        final canAccess = await vm
+                                            .canAccessBook(book);
+                                        if (canAccess) {
+                                          context.push(
+                                            '/reader/${book.id}',
+                                            extra: book,
+                                          ); // Open book
+                                        } else {
+                                          //TODO
+                                          context.push(
+                                            '/reader/${book.id}',
+                                            extra: book,
+                                          ); // Open book
+
+                                          // context.push('/payment', extra: book); // Go to payment
+                                        }
+                                      },
+                                      //
+                                      //                             },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.black,
                                         shape: RoundedRectangleBorder(

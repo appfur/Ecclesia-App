@@ -36,45 +36,52 @@ class AccountScreen extends StatelessWidget {
                     const SizedBox(height: 20),
                     Stack(
                       children: [
-                      GestureDetector(
-  onTap: () {
-    final url = user.photoURL;
-    if (url != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => FullScreenImageViewer(
-            imageUrl: url,
-            tag: 'profile-pic', // optional
-          ),
-        ),
-      );
-    }
-  },
-  child: Hero(
-    tag: 'profile-pic',
-    child: CircleAvatar(
-      radius: 40,
-      backgroundImage:
-          user.photoURL != null ? NetworkImage(user.photoURL!) : null,
-      child: user.photoURL == null
-          ? const Icon(Icons.person, size: 40)
-          : null,
-    ),
-  ),
-),
+                        GestureDetector(
+                          onTap: () {
+                            final url = user.photoURL;
+                            if (url != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => FullScreenImageViewer(
+                                        imageUrl: url,
+                                        tag: 'profile-pic', // optional
+                                      ),
+                                ),
+                              );
+                            }
+                          },
+                          child: Hero(
+                            tag: 'profile-pic',
+                            child: CircleAvatar(
+                              radius: 40,
+                              backgroundImage:
+                                  user.photoURL != null
+                                      ? NetworkImage(user.photoURL!)
+                                      : null,
+                              child:
+                                  user.photoURL == null
+                                      ? const Icon(Icons.person, size: 40)
+                                      : null,
+                            ),
+                          ),
+                        ),
 
                         Positioned(
                           bottom: 0,
                           right: 0,
                           child: GestureDetector(
-                          onTap: () => _showPhotoOptions(context),
+                            onTap: () => _showPhotoOptions(context),
 
                             child: Container(
                               decoration: BoxDecoration(
                                 color: Colors.blue,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
                               ),
                               child: const Icon(
                                 Icons.edit,
@@ -135,21 +142,18 @@ class AccountScreen extends StatelessWidget {
                       onTap: () => context.push('/report-issue'),
                     ),
                     const Spacer(),
-                 GestureDetector(
-  onTap: () {
-    showLogoutConfirmation(
-      context,
-      () => vm.logout(),
-    );
-  },
-  child: Text(
-    'Logout',
-    style: GoogleFonts.poppins(
-      color: Colors.red,
-      fontWeight: FontWeight.w600,
-    ),
-  ),
-),
+                    GestureDetector(
+                      onTap: () {
+                        showLogoutConfirmation(context, () => vm.logout());
+                      },
+                      child: Text(
+                        'Logout',
+                        style: GoogleFonts.poppins(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
 
                     const SizedBox(height: 20),
                   ],
@@ -157,54 +161,57 @@ class AccountScreen extends StatelessWidget {
               ),
     );
   }
-Widget _tile(
-  BuildContext context,
-  String title,
-  IconData icon, {
-  VoidCallback? onTap,
-  bool disabled = false,
-}) {
-  return ListTile(
-    minTileHeight: 50,
-    dense: true,
-    contentPadding: EdgeInsets.zero,
-    title: Text(
-      title,
-      style: GoogleFonts.poppins(
-        fontSize: 14,
-        color: disabled ? Colors.grey : null,
+
+  Widget _tile(
+    BuildContext context,
+    String title,
+    IconData icon, {
+    VoidCallback? onTap,
+    bool disabled = false,
+  }) {
+    return ListTile(
+      minTileHeight: 50,
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontSize: 14,
+          color: disabled ? Colors.grey : null,
+        ),
       ),
-    ),
-    trailing: const Icon(Icons.chevron_right),
-    leading: Icon(icon, color: disabled ? Colors.grey : null),
-    onTap: disabled
-        ? () {
-            showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                title: const Text('Not Available'),
-                content: const Text(
-                  'Password and Email changes are disabled for Google Sign-in accounts.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      context.push('/link-account');
-                    },
-                    child: const Text('Link Account'),
-                  ),
-                ],
-              ),
-            );
-          }
-        : onTap,
-  );
-}
+      trailing: const Icon(Icons.chevron_right),
+      leading: Icon(icon, color: disabled ? Colors.grey : null),
+      onTap:
+          disabled
+              ? () {
+                showDialog(
+                  context: context,
+                  builder:
+                      (_) => AlertDialog(
+                        title: const Text('Not Available'),
+                        content: const Text(
+                          'Password and Email changes are disabled for Google Sign-in accounts.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              context.push('/link-account');
+                            },
+                            child: const Text('Link Account'),
+                          ),
+                        ],
+                      ),
+                );
+              }
+              : onTap,
+    );
+  }
 
   Widget _til(
     BuildContext context,
@@ -222,49 +229,52 @@ Widget _tile(
     );
   }
 
-void _showPhotoOptions(BuildContext context) {
-  final vm = Provider.of<AccountViewModel>(context, listen: false);
-  final picker = ImagePicker();
+  void _showPhotoOptions(BuildContext context) {
+    final vm = Provider.of<AccountViewModel>(context, listen: false);
+    final picker = ImagePicker();
 
-  showModalBottomSheet(
-    context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (_) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.camera_alt),
-            title: const Text('Take a photo'),
-            onTap: () async {
-              final picked = await picker.pickImage(source: ImageSource.camera);
-              if (picked != null) {
-                final bytes = await picked.readAsBytes();
-                await vm.updateProfilePicture(bytes);
-              }
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.photo_library),
-            title: const Text('Choose from gallery'),
-            onTap: () async {
-              final picked = await picker.pickImage(source: ImageSource.gallery);
-              if (picked != null) {
-                final bytes = await picked.readAsBytes();
-                await vm.updateProfilePicture(bytes);
-              }
-              Navigator.pop(context);
-            },
-          ),
-          const SizedBox(height: 10),
-        ],
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-    ),
-  );
-}
-
-
+      builder:
+          (_) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Take a photo'),
+                  onTap: () async {
+                    final picked = await picker.pickImage(
+                      source: ImageSource.camera,
+                    );
+                    if (picked != null) {
+                      final bytes = await picked.readAsBytes();
+                      await vm.updateProfilePicture(bytes);
+                    }
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Choose from gallery'),
+                  onTap: () async {
+                    final picked = await picker.pickImage(
+                      source: ImageSource.gallery,
+                    );
+                    if (picked != null) {
+                      final bytes = await picked.readAsBytes();
+                      await vm.updateProfilePicture(bytes);
+                    }
+                    Navigator.pop(context);
+                  },
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+    );
+  }
 }

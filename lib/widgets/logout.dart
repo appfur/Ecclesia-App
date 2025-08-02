@@ -21,7 +21,7 @@ void showLogoutConfirmation(BuildContext context, VoidCallback onConfirm) {
               onPressed: () {
                 logout();
                 Navigator.pop(context);
-               // onConfirm(); // this triggers `vm.logout()`
+                // onConfirm(); // this triggers `vm.logout()`
               },
               child: const Text('Logout'),
             ),
@@ -44,8 +44,8 @@ Future<void> logout() async {
     if (await googleSignIn.isSignedIn()) {
       await googleSignIn.disconnect();
     }
- //await _auth.signOut();
-  //  notifyListeners();
+    //await _auth.signOut();
+    //  notifyListeners();
     // Clear SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();

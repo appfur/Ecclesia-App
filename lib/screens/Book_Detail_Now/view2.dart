@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/book_model.dart';
 import '../../widgets/paymentSheet.dart';
+import '../read.dart';
+import '../shelf/viewmodel.dart';
 import 'viewmodel.dart';
 
 class BookDetailScreen extends StatelessWidget {
@@ -18,7 +20,11 @@ class BookDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => BookDetailViewModel(book: book ,userId: FirebaseAuth.instance.currentUser!.uid,),
+      create:
+          (_) => BookDetailViewModel(
+            book: book,
+            userId: FirebaseAuth.instance.currentUser!.uid,
+          ),
       child: Consumer<BookDetailViewModel>(
         builder: (context, vm, _) {
           try {
@@ -119,17 +125,42 @@ class BookDetailScreen extends StatelessWidget {
                                   ),
                                 ),
                                 onPressed: () async {
-                                 
-                              final canAccess = await vm.canAccessBook(book);
-  if (canAccess) {
-   // context.push('/reader/${book.id}', extra: book); // Open book
-  } else {
- showProductDetailsBottomSheet(
-                                    context,
+                                  final canAccess = await vm.canAccessBook(
                                     book,
                                   );
-   // context.push('/payment', extra: book); // Go to payment
-  }      // pass the BookModel here
+                                  if (canAccess) {
+                                    context.pushNamed(
+                                      'reader',
+                                      pathParameters: {
+                                        'bookId': book.id,
+                                      }, // your Firestore book ID
+                                    );
+                                    // context.push('/reader/${book.id}', extra: book); // Open book
+                                  } else {
+                                    //TODO
+                                    showProductDetailsBottomSheet(
+                                      context,
+                                      book,
+                                    );
+                                    //  context.push('/reader/${book.id}', extra: book); // Open book
+                                    /*      Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookReaderScree(
+                          bookId: book.id,
+                          bookTitle: book.title,
+                          bookRef: book.referencePath, // This will never be null
+                        //  bookRef: book.reference!.path, // This is the key part
+                        ),
+                      ),
+                    );*/
+                                    //context.pushNamed(
+                                    // 'reader',
+                                    // pathParameters: {'bookId': book.id}, // your Firestore book ID
+                                    //);
+
+                                    // context.push('/payment', extra: book); // Go to payment
+                                  } // pass the BookModel here
                                 },
 
                                 label: Text(
@@ -143,23 +174,28 @@ class BookDetailScreen extends StatelessWidget {
                             const SizedBox(width: 16),
                             Expanded(
                               child: OutlinedButton(
-                             //   onPressed: () {},
-                               onPressed: () async {
-  //await vm.addToLibrary();
+                                //   onPressed: () {},
+                                onPressed: () async {
+                                  //await vm.addToLibrary();
 
- // ScaffoldMessenger.of(context).showSnackBar(
-  //  const SnackBar(content: Text("📚 Book added to your library")),
-  //);
-   await vm.toggleLibraryStatus();
+                                  // ScaffoldMessenger.of(context).showSnackBar(
+                                  //  const SnackBar(content: Text("📚 Book added to your library")),
+                                  //);
+                                  await vm.toggleLibraryStatus();
+                                  context
+                                      .read<LibraryViewModel>()
+                                      .loadLibrary();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(vm.isInLibrary
-            ? "📚 Book added to your library"
-            : "❌ Book removed from your library"),
-      ),
-    );
-},
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        vm.isInLibrary
+                                            ? "📚 Book added to your library"
+                                            : "❌ Book removed from your library",
+                                      ),
+                                    ),
+                                  );
+                                },
 
                                 style: OutlinedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
@@ -167,8 +203,10 @@ class BookDetailScreen extends StatelessWidget {
                                   ),
                                 ),
                                 child: Text(
-                                    vm.isInLibrary ? 'Remove from Library' : 'Add to Library',
-                                 // 'Add to library',
+                                  vm.isInLibrary
+                                      ? 'Remove from Library'
+                                      : 'Add to Library',
+                                  // 'Add to library',
                                   style: GoogleFonts.poppins(),
                                 ),
                               ),

@@ -42,7 +42,7 @@ class LibraryScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                /* 
+                    /* 
                   if (recent.isNotEmpty)
   Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +70,6 @@ class LibraryScreen extends StatelessWidget {
 else
   const SizedBox.shrink(),
   */
-
                     ...grouped.entries.map(
                       (entry) => BookGroupSection(
                         groupTitle: entry.key,
@@ -182,7 +181,6 @@ class BookThumbnailCard extends StatelessWidget {
   }
 }
 
-
 class BookGridCard extends StatelessWidget {
   final BookModel book;
   const BookGridCard({super.key, required this.book});
@@ -217,25 +215,26 @@ class BookGridCard extends StatelessWidget {
     }
 
     return GestureDetector(
-     // onTap: () => vm.openBook(book),
+      // onTap: () => vm.openBook(book),
       onTap: () async {
-  final libraryVM = context.read<LibraryViewModel>();
-  final canAccess = await libraryVM.canAccessBook(book);
+        final libraryVM = context.read<LibraryViewModel>();
+        final canAccess = await libraryVM.canAccessBook(book);
 
-  if (canAccess) {
-    libraryVM.openBook(book);
-  } else {
-  //  context.push('/payment', extra: book); // adjust route name if needed
-  showProductDetailsBottomSheet(
-                                    context,
-                                    book,
-                                  );
-  }
-},
+        if (canAccess) {
+          libraryVM.openBook(book);
+          context.pushNamed(
+            'reader',
+            pathParameters: {'bookId': book.id}, // your Firestore book ID
+          );
+        } else {
+          //  context.push('/payment', extra: book); // adjust route name if needed
+          showProductDetailsBottomSheet(context, book);
+        }
+      },
 
-       onLongPress: () => _showBookOptions(context, book),
-       onDoubleTap: () => _showBookOptions(context, book),
-                
+      onLongPress: () => _showBookOptions(context, book),
+      onDoubleTap: () => _showBookOptions(context, book),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -270,12 +269,7 @@ class BookGridCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (badge != null)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: badge,
-                ),
+              if (badge != null) Positioned(right: 8, top: 8, child: badge),
             ],
           ),
           const SizedBox(height: 6),
@@ -285,7 +279,7 @@ class BookGridCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 10,),
+          SizedBox(height: 10),
           LinearProgressIndicator(
             value: progress,
             minHeight: 4,
@@ -322,8 +316,8 @@ class BookGridCard extends StatelessWidget {
   }
 
   //void _showBookOptions(BuildContext context, BookModel book) {
-    // Your bottom sheet or option logic here
- // }
+  // Your bottom sheet or option logic here
+  // }
 }
 
 void _showBookOptions(BuildContext context, BookModel book) {
@@ -343,31 +337,32 @@ void _showBookOptions(BuildContext context, BookModel book) {
         expand: false,
         builder: (_, controller) {
           return FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance
-                .collection('users')
-                .doc(vm.userId)
-                .collection('library')
-                .doc(book.id)
-                .get(),
+            future:
+                FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(vm.userId)
+                    .collection('library')
+                    .doc(book.id)
+                    .get(),
             builder: (context, snapshot) {
               final addedAt = (snapshot.data?.data() as Map?)?['added_at'];
               final addedDate =
                   (addedAt is Timestamp) ? addedAt.toDate() : null;
 
               return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(vm.userId)
-                    .collection('purchases')
-                    .doc(book.id)
-                    .get(),
+                future:
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(vm.userId)
+                        .collection('purchases')
+                        .doc(book.id)
+                        .get(),
                 builder: (context, purchaseSnapshot) {
                   final purchaseData =
                       purchaseSnapshot.data?.data() as Map<String, dynamic>?;
 
-                  final purchaseDate = (purchaseData?['purchased_at']
-                          as Timestamp?)
-                      ?.toDate();
+                  final purchaseDate =
+                      (purchaseData?['purchased_at'] as Timestamp?)?.toDate();
 
                   return ListView(
                     controller: controller,
@@ -433,19 +428,18 @@ void _showBookOptions(BuildContext context, BookModel book) {
                           book.price == 0
                               ? 'FREE'
                               : '₦${book.price.toStringAsFixed(0)}',
-                          style:
-                              const TextStyle(fontWeight: FontWeight.w500),
+                          style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                       ),
                       ListTile(
-  leading: const Icon(Icons.shopping_bag),
-  title: Text(
-    purchaseDate != null
-        ? 'Purchased ${timeago.format(purchaseDate)}'
-        : 'Not purchased yet',
-    style: const TextStyle(),
-  ),
-),
+                        leading: const Icon(Icons.shopping_bag),
+                        title: Text(
+                          purchaseDate != null
+                              ? 'Purchased ${timeago.format(purchaseDate)}'
+                              : 'Not purchased yet',
+                          style: const TextStyle(),
+                        ),
+                      ),
 
                       if (addedDate != null)
                         ListTile(

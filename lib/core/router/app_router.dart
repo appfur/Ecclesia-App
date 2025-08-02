@@ -10,18 +10,24 @@ import 'package:myapp/screens/home/view.dart';
 import 'package:myapp/screens/payment/payment.dart';
 import 'package:myapp/screens/payment/success.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/book_model.dart';
 //import '../../screens/Book_Detail/view.dart';
 import '../../screens/Book_Detail_Now/viewmodel.dart';
+import '../../screens/ONBOARDING/view.dart';
+import '../../screens/Reader/view.dart';
 import '../../screens/account/change_email.dart';
 import '../../screens/account/change_password.dart';
 import '../../screens/account/view.dart';
 import '../../screens/auth_success/view.dart';
+//import '../../screens/book_reader.dart';
 import '../../screens/category_detail/view.dart';
 import '../../screens/login/view.dart';
 import '../../screens/notification/view.dart';
 import '../../screens/onboarding-auth/view.dart';
+import '../../screens/openbook/view.dart';
+import '../../screens/openbook/viewmodel.dart';
 import '../../screens/search/view.dart';
 import '../../screens/shelf/view.dart';
 import '../../screens/signup/view.dart';
@@ -176,29 +182,54 @@ class AppRouter {
       final loggedIn = authNotifier.isLoggedIn;
       final subloc = state.matchedLocation;
 
-      final authRoutes = {'/', '/login', '/signup'};
+      // Intro screen logic
+      final prefs = await SharedPreferences.getInstance();
+      final introSeen = prefs.getBool('introSeen') ?? false;
+      final isAtIntro = subloc == '/intro';
 
-      // ⏳ Wait for Firebase to initialize
+      // Auth-related routes
+      final isAtAuth = {
+        '/',
+        '/login',
+        '/signup',
+        '/forgot-password',
+      }.contains(subloc);
+
+      // ⏳ Wait for Firebase to finish initializing
       if (isLoading) return null;
 
-      // 🔐 Not logged in
-      if (!loggedIn && !authRoutes.contains(subloc)) {
-        await FirebaseAuth.instance.signOut();
+      // 🟪 Show intro only once
+      if (!introSeen) {
+        if (!isAtIntro) return '/intro';
+        return null; // already on /intro, stay here
+      }
+
+      // 🔐 Not logged in → allow only auth routes
+      if (!loggedIn && !isAtAuth) {
         return '/';
       }
 
-      // ✅ Logged in, but trying to access onboarding/login/signup
-      if (loggedIn && authRoutes.contains(subloc)) {
+      // ✅ Logged in → block access to auth routes
+      if (loggedIn && isAtAuth) {
         return '/home';
       }
 
-      return null;
+      return null; // no redirect needed
     },
 
     routes: [
       // ✅ Standalone routes first
       GoRoute(path: '/', builder: (context, state) => const OnboardingView()),
-     GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingView()),
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingView(),
+      ),
+      GoRoute(
+        path: '/intro',
+        builder:
+            (context, state) =>
+                const OnboardingScreen(), // Your Christian-style screen
+      ),
 
       GoRoute(path: '/login', builder: (context, state) => const LoginView()),
       GoRoute(path: '/signup', builder: (context, state) => const SignupView()),
@@ -206,24 +237,24 @@ class AppRouter {
         path: '/acc-success',
         builder: (context, state) => const SuccessScreen(),
       ),
-GoRoute(
+      GoRoute(
         path: '/change-username',
         builder: (context, state) => const ChangeUsernameScreen(),
       ),
-GoRoute(
+      GoRoute(
         path: '/change-email',
         builder: (context, state) => const ChangeEmailScreen(),
       ),
-GoRoute(
+      GoRoute(
         path: '/change-password',
         builder: (context, state) => const ChangePasswordScreen(),
       ),
 
-GoRoute(
+      GoRoute(
         path: '/report-issue',
         builder: (context, state) => const ReportIssueScreen(),
       ),
-GoRoute(
+      GoRoute(
         path: '/forgot-password',
         builder: (context, state) => const ForgotPasswordScreen(),
       ),
@@ -236,6 +267,54 @@ GoRoute(
           return CategoryDetailScreen(categoryId: categoryId, title: title);
         },
       ),
+
+      // GoRoute(
+      //name: 'reader',
+      // path: '/reader', // 🚫 No path parameters here
+      // builder: (context, state) {
+      //   final book = state.extra as BookModel;
+      //   return ReaderScreen(book: book);
+      // },
+      //),
+
+      /*GoRoute(
+  path: '/reader/:bookId',
+  name: 'reader',
+  builder: (context, state) {
+    final book = state.extra;
+    if (book == null || book is! BookModel) {
+      return const Scaffold(
+        body: Center(child: Text("❌ Book data missing.")),
+      );
+    }
+
+    return ReaderScreen(book: book);
+  },
+),*/
+      GoRoute(
+        path: '/reader/:bookId',
+        name: 'reader',
+        builder: (context, state) {
+          final bookId = state.pathParameters['bookId']!;
+          return ChangeNotifierProvider(
+            create: (_) => ReaderViewModel(bookId)..init(),
+            child: const ReaderScreen(),
+          );
+        },
+      ),
+
+      /* GoRoute(
+  path: '/reader/:bookId',
+  name: 'reader',
+  builder: (context, state) {
+    final book = state.extra as BookModel; // ⬅️ You still get the whole book
+    final bookId = state.pathParameters['bookId']; // optional, for validation
+      return ReaderScreen(book: book);
+
+  //  return BookReaderScreen(book: book, bookId: '$bookId',);
+  },
+),*/
+
       /*  GoRoute(oRoute(
         path: '/change-password',
         builder: (context, state) => const ChangePasswordScreen(),
@@ -273,8 +352,12 @@ GoRoute(
         builder: (context, state) => const AccountScreen(),
       ),
       GoRoute(
-        path: '/paysuccess',
-        builder: (context, state) => const PaymentSuccessScreen(),
+        path: '/payment-success',
+        name: 'paymentSuccess',
+        builder: (context, state) {
+          final bookId = (state.extra as Map)['bookId'] as String;
+          return PaymentSuccessScreen(bookId: bookId);
+        },
       ),
 
       GoRoute(
@@ -284,10 +367,10 @@ GoRoute(
           return Payment(book: book);
         },
       ),
-GoRoute(
-  path: '/verify-email',
-  builder: (context, state) => const VerifyEmailScreen(),
-),
+      GoRoute(
+        path: '/verify-email',
+        builder: (context, state) => const VerifyEmailScreen(),
+      ),
 
       GoRoute(
         path: '/book/:id',

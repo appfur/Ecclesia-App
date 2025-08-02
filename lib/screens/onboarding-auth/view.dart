@@ -26,7 +26,8 @@ class OnboardingView extends StatelessWidget {
                 Image.asset('assets/icons/logo.jpg', height: 120),
                 const SizedBox(height: 32),
                 const Text(
-                  'Welcome to the rhythm\nof stories',
+                  // 'Welcome to the rhythm\nof stories',
+                  "Empowering believers with\nkingdom knowledge for God's purpose\nand spiritual maturity.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 22,

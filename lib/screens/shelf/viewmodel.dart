@@ -25,10 +25,10 @@ class LibraryViewModel extends ChangeNotifier {
 
   Future<void> _loadRecentBooks() async {
     print("📥 Loading recent books...");
-final recentIds = prefs.getStringList('recent_books_$userId') ?? [];
-print("🧾 Found recent book IDs: $recentIds");
+    final recentIds = prefs.getStringList('recent_books_$userId') ?? [];
+    print("🧾 Found recent book IDs: $recentIds");
 
-  //  final recentIds = prefs.getStringList('recent_books_$userId') ?? [];
+    //  final recentIds = prefs.getStringList('recent_books_$userId') ?? [];
     final books = <BookModel>[];
 
     for (final id in recentIds) {
@@ -40,7 +40,9 @@ print("🧾 Found recent book IDs: $recentIds");
               .doc(id)
               .get();
       if (doc.exists) {
-        books.add(BookModel.fromFirestore(doc.data()!)..copyWithCategory(doc.id));
+        books.add(
+          BookModel.fromFirestore(doc.data()!)..copyWithCategory(doc.id),
+        );
       }
     }
     recentBooks = books;
@@ -72,7 +74,8 @@ print("🧾 Found recent book IDs: $recentIds");
     final grouped = <String, List<BookModel>>{};
 
     for (final doc in snapshot.docs) {
-      final book = BookModel.fromFirestore(doc.data())..copyWithCategory(doc.id);
+      final book = BookModel.fromFirestore(doc.data())
+        ..copyWithCategory(doc.id);
       //  final book = BookModel.fromFirestore(doc.data());
       final addedAt = (doc.data()['added_at'] as Timestamp?)?.toDate();
 
@@ -117,33 +120,36 @@ print("🧾 Found recent book IDs: $recentIds");
     };
     notifyListeners();
   }
-Future<bool> canAccessBook(BookModel book) async {
-  if (book.price == 0) {
-  // Add to library silently
-  await addBookToLibrary(book);
-  return true;
-}
 
-  //if (book.price == 0) return true;
-  return await isBookPurchased(book.id);
-}
-final Set<String> _purchasedBooks = {};
+  Future<bool> canAccessBook(BookModel book) async {
+    if (book.price == 0) {
+      // Add to library silently
+      await addBookToLibrary(book);
+      return true;
+    }
 
-Future<void> loadPurchases() async {
-  final snapshot = await firestore
-    .collection('users')
-    .doc(userId)
-    .collection('purchases')
-    .get();
+    //if (book.price == 0) return true;
+    return await isBookPurchased(book.id);
+  }
 
-  _purchasedBooks
-    ..clear()
-    ..addAll(snapshot.docs.map((doc) => doc.id));
+  final Set<String> _purchasedBooks = {};
 
-  notifyListeners();
-}
+  Future<void> loadPurchases() async {
+    final snapshot =
+        await firestore
+            .collection('users')
+            .doc(userId)
+            .collection('purchases')
+            .get();
 
-bool isBookPurchasedSync(String bookId) => _purchasedBooks.contains(bookId);
+    _purchasedBooks
+      ..clear()
+      ..addAll(snapshot.docs.map((doc) => doc.id));
+
+    notifyListeners();
+  }
+
+  bool isBookPurchasedSync(String bookId) => _purchasedBooks.contains(bookId);
 
   Future<void> addBookToLibrary(BookModel book) async {
     final docRef = firestore
@@ -164,6 +170,10 @@ bool isBookPurchasedSync(String bookId) => _purchasedBooks.contains(bookId);
     recent.insert(0, book.id);
     await prefs.setStringList('recent_books_$userId', recent.take(5).toList());
     notifyListeners();
+    //context.pushNamed(
+    // 'reader',
+    // pathParameters: {'bookId': book.id}, // your Firestore book ID
+    //);
   }
 
   Future<bool> isBookPurchased(String bookId) async {

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/models/book_model.dart';
 
 class BookReaderScreen extends StatefulWidget {
   final String bookId;
 
-  const BookReaderScreen({required this.bookId, super.key});
+  const BookReaderScreen({
+    required this.bookId,
+    super.key,
+    required BookModel book,
+  });
 
   @override
   State<BookReaderScreen> createState() => _BookReaderScreenState();

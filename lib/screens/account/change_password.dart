@@ -61,9 +61,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -84,29 +84,45 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             const SizedBox(height: 40),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('New Password', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+              child: Text(
+                'New Password',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+              ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _newPasswordController,
               obscureText: true,
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
             const SizedBox(height: 16),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('Confirm Password', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+              child: Text(
+                'Confirm Password',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+              ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _confirmPasswordController,
               obscureText: true,
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
             const SizedBox(height: 32),
@@ -117,11 +133,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 onPressed: _loading ? null : _changePassword,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.purple,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-                child: _loading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text('Update Password', style: GoogleFonts.poppins(color: Colors.white)),
+                child:
+                    _loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                          'Update Password',
+                          style: GoogleFonts.poppins(color: Colors.white),
+                        ),
               ),
             ),
           ],

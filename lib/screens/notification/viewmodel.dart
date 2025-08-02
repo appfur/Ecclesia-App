@@ -329,17 +329,18 @@ class NotificationsViewModel extends ChangeNotifier {
   bool isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
-Future<void> deleteNotification(String id) async {
-  await _db
-      .collection('notifications')
-      .doc('users')
-      .collection(uid)
-      .doc(id)
-      .delete();
 
-  _notifications.removeWhere((n) => n.id == id);
-  notifyListeners();
-}
+  Future<void> deleteNotification(String id) async {
+    await _db
+        .collection('notifications')
+        .doc('users')
+        .collection(uid)
+        .doc(id)
+        .delete();
+
+    _notifications.removeWhere((n) => n.id == id);
+    notifyListeners();
+  }
 
   @override
   void dispose() {

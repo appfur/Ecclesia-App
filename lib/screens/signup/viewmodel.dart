@@ -52,7 +52,7 @@ class SignupViewModel extends ChangeNotifier {
         // 'birthday': dob,
         'createdAt': FieldValue.serverTimestamp(),
       });
-await FirebaseAuth.instance.currentUser?.updateDisplayName(username);
+      await FirebaseAuth.instance.currentUser?.updateDisplayName(username);
 
       navigatorKey.currentContext?.go('/verify-email');
     } on FirebaseAuthException catch (e) {

@@ -23,10 +23,9 @@ class LoginViewModel extends ChangeNotifier {
   Future<void> onForgotPassword() async {
     // Optional: Navigate to forgot password page
     // debugPrint('Forgot password tapped');
-   // context.push('/forgot-password');
-   await FirebaseAuth.instance.signOut();
-       navigatorKey.currentContext?.go('/forgot-password');
-
+    // context.push('/forgot-password');
+    await FirebaseAuth.instance.signOut();
+    navigatorKey.currentContext?.go('/forgot-password');
   }
 
   Future<void> login() async {

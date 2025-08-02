@@ -79,8 +79,13 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
             TextField(
               controller: _titleController,
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -97,8 +102,13 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
               maxLines: 5,
               minLines: 4,
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
             ),
             const SizedBox(height: 30),
@@ -109,11 +119,17 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                 onPressed: _loading ? null : _submitIssue,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.purple,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-                child: _loading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text('Send', style: GoogleFonts.poppins(color: Colors.white)),
+                child:
+                    _loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                          'Send',
+                          style: GoogleFonts.poppins(color: Colors.white),
+                        ),
               ),
             ),
           ],

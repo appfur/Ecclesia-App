@@ -13,41 +13,43 @@ class ChangeEmailScreen extends StatefulWidget {
 class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   final _controller = TextEditingController();
   bool _loading = false;
-Future<void> _changeEmail() async {
-  final newEmail = _controller.text.trim();
-  if (newEmail.isEmpty) return;
+  Future<void> _changeEmail() async {
+    final newEmail = _controller.text.trim();
+    if (newEmail.isEmpty) return;
 
-  setState(() => _loading = true);
+    setState(() => _loading = true);
 
-  try {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) throw Exception('User not logged in');
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('User not logged in');
 
-    await user.verifyBeforeUpdateEmail(newEmail);
+      await user.verifyBeforeUpdateEmail(newEmail);
 
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'A verification link has been sent to your new email. Please verify to complete the update.',
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'A verification link has been sent to your new email. Please verify to complete the update.',
+          ),
         ),
-      ),
-    );
+      );
 
-    Navigator.pop(context);
-  } catch (e) {
-    String message = 'Something went wrong';
-    if (e is FirebaseAuthException && e.code == 'requires-recent-login') {
-      message = 'Please re-authenticate to change your email';
-    } else if (e is FirebaseAuthException) {
-      message = e.message ?? message;
+      Navigator.pop(context);
+    } catch (e) {
+      String message = 'Something went wrong';
+      if (e is FirebaseAuthException && e.code == 'requires-recent-login') {
+        message = 'Please re-authenticate to change your email';
+      } else if (e is FirebaseAuthException) {
+        message = e.message ?? message;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      setState(() => _loading = false);
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  } finally {
-    setState(() => _loading = false);
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -60,15 +62,23 @@ Future<void> _changeEmail() async {
             const SizedBox(height: 40),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('New Email', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+              child: Text(
+                'New Email',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+              ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _controller,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -79,11 +89,17 @@ Future<void> _changeEmail() async {
                 onPressed: _loading ? null : _changeEmail,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.purple,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-                child: _loading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text('Confirm', style: GoogleFonts.poppins(color: Colors.white)),
+                child:
+                    _loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                          'Confirm',
+                          style: GoogleFonts.poppins(color: Colors.white),
+                        ),
               ),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:paystack_for_flutter/paystack_for_flutter.dart';
@@ -21,41 +22,47 @@ class _PaymentState extends State<Payment> {
   final User? user = FirebaseAuth.instance.currentUser;
 
   @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    final user = FirebaseAuth.instance.currentUser;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final user = FirebaseAuth.instance.currentUser;
 
-    if (user != null && !user.emailVerified) {
-      await user.sendEmailVerification();
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please verify your email before making a payment. We’ve sent you a verification link.',
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Please verify your email before making a payment. We’ve sent you a verification link.',
+            ),
           ),
-        ),
-      );
+        );
 
-      // Optionally: pop this screen so user doesn’t stay on payment UI
-      Navigator.of(context).pop();
-      return;
-    }
+        // Optionally: pop this screen so user doesn’t stay on payment UI
+        Navigator.of(context).pop();
+        return;
+      }
 
-    // Proceed if verified
-    _triggerPayment();
-  });
-}
-
+      // Proceed if verified
+      _triggerPayment();
+    });
+  }
 
   void _triggerPayment() {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+
     final priceInKobo = (widget.book.price * 100).toDouble();
+    String secretKey =
+        remoteConfig.getString('livekey').isNotEmpty
+            ? remoteConfig.getString('livekey')
+            : 'sk_test_967cbe6350052f0d81559d38f0b264b435e35ded'; // Fallback
 
     PaystackFlutter().pay(
       context: context,
-      secretKey:
-          'sk_live_2f6dd3ed79d52ebb36515870f3185c260fd4ec69', // Replace with your test/live key
+      secretKey: 'sk_test_967cbe6350052f0d81559d38f0b264b435e35ded',
+      // secretKey,
+      // 'sk_live_2f6dd3ed79d52ebb36515870f3185c260fd4ec69', // Replace with your test/live key
       amount: priceInKobo,
       email: user!.email ?? 'fallback@email.com',
       firstName: user!.displayName?.split(" ").first ?? 'First',
@@ -69,67 +76,79 @@ void initState() {
         "product_price": widget.book.price,
         "book_id": widget.book.id,
       },
-      
-        onSuccess: (paystackCallback) async {
-      final uid = user!.uid;
-      final firestore = FirebaseFirestore.instance;
 
-      try {
-        // ✅ 1. Add book to user's library
-        await firestore.collection('users').doc(uid).collection('library').doc(widget.book.id).set({
-          ...widget.book.toMap(),
-          'added_at': FieldValue.serverTimestamp(),
-        });
+      onSuccess: (paystackCallback) async {
+        final uid = user!.uid;
+        final firestore = FirebaseFirestore.instance;
 
-        // ✅ 2. Mark book as purchased
-        await firestore.collection('users').doc(uid).collection('purchases').doc(widget.book.id).set({
-          'price': widget.book.price,
-          'purchased_at': FieldValue.serverTimestamp(),
-          'reference': paystackCallback.reference,
-        });
-await FirebaseFirestore.instance
-    .collection('notifications')
-    .doc('users')
-    .collection(user!.uid)
-    .add({
-  'title': 'Book Purchased',
-  'body': 'You successfully bought "${widget.book.title}".',
-  'timestamp': FieldValue.serverTimestamp(),
-  'isGeneral': false,
-});
+        try {
+          // ✅ 1. Add book to user's library
+          await firestore
+              .collection('users')
+              .doc(uid)
+              .collection('library')
+              .doc(widget.book.id)
+              .set({
+                ...widget.book.toMap(),
+                'added_at': FieldValue.serverTimestamp(),
+              });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '✅ Payment Successful: ${paystackCallback.reference}',
+          // ✅ 2. Mark book as purchased
+          await firestore
+              .collection('users')
+              .doc(uid)
+              .collection('purchases')
+              .doc(widget.book.id)
+              .set({
+                'price': widget.book.price,
+                'purchased_at': FieldValue.serverTimestamp(),
+                'reference': paystackCallback.reference,
+              });
+          await FirebaseFirestore.instance
+              .collection('notifications')
+              .doc('users')
+              .collection(user!.uid)
+              .add({
+                'title': 'Book Purchased',
+                'body': 'You successfully bought "${widget.book.title}".',
+                'timestamp': FieldValue.serverTimestamp(),
+                'isGeneral': false,
+              });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '✅ Payment Successful: ${paystackCallback.reference}',
+              ),
+              backgroundColor: Colors.green,
             ),
-            backgroundColor: Colors.green,
-          ),
-        );
-context.read<LibraryViewModel>().loadLibrary();
+          );
+          context.read<LibraryViewModel>().loadLibrary();
 
-        // Navigate to success screen or library
-        context.push('/paysuccess');
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('⚠️ Failed to save book after payment: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    },
+          // Navigate to success screen or library
+          //context.push('/payment-success');
+          context.push('/payment-success', extra: {'bookId': widget.book.id});
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('⚠️ Failed to save book after payment: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
       onCancelled: (paystackCallback) async {
         await FirebaseFirestore.instance
-  .collection('notifications')
-  .doc('users')
-  .collection(user!.uid)
-  .add({
-    'title': 'Payment Cancelled',
-    'body': 'You cancelled payment for "${widget.book.title}". You can complete it anytime.',
-    'timestamp': FieldValue.serverTimestamp(),
-    'isGeneral': false,
-  });
+            .collection('notifications')
+            .doc('users')
+            .collection(user!.uid)
+            .add({
+              'title': 'Payment Cancelled',
+              'body':
+                  'You cancelled payment for "${widget.book.title}". You can complete it anytime.',
+              'timestamp': FieldValue.serverTimestamp(),
+              'isGeneral': false,
+            });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
